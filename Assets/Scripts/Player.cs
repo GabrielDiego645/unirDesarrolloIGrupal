@@ -7,15 +7,24 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
     private float inputH;
-    private float lastY;
+
+    private bool canDoubleJump = false;
 
     [Header("Move System")]
-    [SerializeField] private Transform pies;
-    [SerializeField] private Transform rotationPoint;
     [SerializeField] private float speedMovement;
+
+    [Header("Jump System")]
+    [SerializeField] private Transform groundController;
     [SerializeField] private float jumpForce;
-    [SerializeField] private float groundDetectionDistance;
+    [SerializeField] private Vector3 groundDetectionDimensions;
     [SerializeField] private LayerMask whatIsJumpable;
+
+    [Header("WallSlideAndJump System")]
+    [SerializeField] private Transform wallController;
+    [SerializeField] private Vector3 wallDetectionDimensions;
+    [SerializeField] private float slidingSpeed;
+    [SerializeField] private float wallJumpForceX;
+    [SerializeField] private float wallJumpForceY;
 
     [Header("Attack System")]
     [SerializeField] private Transform attackPoint;
@@ -28,14 +37,19 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        lastY = transform.position.y;
     }
 
     // Update is called once per frame
     void Update()
     {
-        HorizontalMovement();
+        inputH = Input.GetAxisRaw("Horizontal");
+
+        if (!WallSlide())
+        {
+            HorizontalMovement();
+        }
         Jump();
+        WallJump();
         Fall();
         ThrowAttack();
         if (Input.GetKeyDown(KeyCode.H))
@@ -46,7 +60,6 @@ public class Player : MonoBehaviour
 
     private void HorizontalMovement()
     {
-        inputH = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(inputH * speedMovement, rb.velocity.y);
 
         if (inputH != 0)
@@ -69,32 +82,56 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && AmIOnTheGround())
+        if (Input.GetKeyDown(KeyCode.Space) && !anim.GetBool("wallsliding") && (AmIOnTheGround() || canDoubleJump))
         {
+            canDoubleJump = AmIOnTheGround();
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             anim.SetTrigger("jump");
             anim.SetBool("falling", true);
         }
     }
 
+    private bool WallSlide()
+    {
+        if (!AmIOnTheGround() && AmIOnTheWall() && inputH != 0)
+        {
+            canDoubleJump = false;
+            anim.SetBool("wallsliding", true);
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -slidingSpeed, float.MaxValue));
+            return true;
+        }
+        anim.SetBool("wallsliding", false);
+        return false;
+    }
+
+    private void WallJump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && anim.GetBool("wallsliding"))
+        {
+            if ((transform.eulerAngles == Vector3.zero && inputH == -1) || (transform.eulerAngles == new Vector3(0, 180, 0) && inputH == 1))
+            {
+                rb.velocity = new Vector2(0f, 0f);
+                rb.AddForce(new Vector2(wallJumpForceX * inputH, wallJumpForceY), ForceMode2D.Impulse);
+                anim.SetTrigger("jump");
+                anim.SetBool("falling", true);
+            }
+        }
+    }
+
     private void Fall()
     {
-        if (lastY > transform.position.y && !AmIOnTheGround())
-        {
-            anim.SetBool("falling", true);
-        } 
-        else if (anim.GetBool("falling") && AmIOnTheGround())
-        {
-            anim.SetBool("falling", false);
-        }
-        lastY = transform.position.y;
+        anim.SetBool("falling", !AmIOnTheGround());
     }
 
     private bool AmIOnTheGround()
     {
-        return Physics2D.Raycast(pies.position, Vector3.down, groundDetectionDistance, whatIsJumpable);
-        //    || Physics2D.Raycast(pies.position, Vector3.left, 1f, whatIsJumpable)
-        //    || Physics2D.Raycast(pies.position, Vector3.right, 1f, whatIsJumpable);
+        return Physics2D.OverlapBox(groundController.position, groundDetectionDimensions, 0f, whatIsJumpable);
+    }
+
+    private bool AmIOnTheWall()
+    {
+        return Physics2D.OverlapBox(wallController.position, wallDetectionDimensions, 0f, whatIsJumpable);
     }
 
     private void ThrowAttack()
@@ -119,8 +156,11 @@ public class Player : MonoBehaviour
         }
     }
 
-    /*private void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
-        Gizmos.DrawSphere(attackPoint.position, attackRadius);
-    }*/
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRadius);
+        Gizmos.DrawWireCube(wallController.position, wallDetectionDimensions);
+        Gizmos.DrawWireCube(groundController.position, groundDetectionDimensions);
+    }
 }
