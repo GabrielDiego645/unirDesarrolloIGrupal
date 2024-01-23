@@ -9,10 +9,12 @@ public class EnemyPatrolRoute : MonoBehaviour
 
     private Vector3 currentTarget;
     private int currentIndex = 0;
+    private Animator anim;
 
     // Start is called before the first frame update
     void Start()
     {
+        anim = GetComponent<Animator>();
         currentTarget = waypoints[currentIndex].position;
         StartCoroutine(Patrol());
     }
@@ -21,11 +23,13 @@ public class EnemyPatrolRoute : MonoBehaviour
     {
         while (true)
         {
+            anim.SetBool("running", true);
             while (transform.position != currentTarget)
             {
                 transform.position = Vector3.MoveTowards(transform.position, currentTarget, patrolSpeed * Time.deltaTime);
                 yield return null;
             }
+            anim.SetBool("running", false);
             yield return new WaitForSeconds(3f);
             DefineNewTarget();
         }
