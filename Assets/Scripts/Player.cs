@@ -7,8 +7,10 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
     private float inputH;
+    private float directionLastJump = 0;
 
     private bool canDoubleJump = false;
+    private bool isAttacking = false;
 
     [Header("Move System")]
     [SerializeField] private float speedMovement;
@@ -44,18 +46,14 @@ public class Player : MonoBehaviour
     {
         inputH = Input.GetAxisRaw("Horizontal");
 
-        if (!WallSlide())
+        if (!WallSlide() && !isAttacking)
         {
             HorizontalMovement();
         }
         Jump();
         WallJump();
         Fall();
-        ThrowAttack();
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            anim.SetTrigger("hurt");
-        }
+        StartCoroutine(ThrowAttack());
     }
 
     private void HorizontalMovement()
@@ -109,8 +107,10 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && anim.GetBool("wallsliding"))
         {
-            if ((transform.eulerAngles == Vector3.zero && inputH == -1) || (transform.eulerAngles == new Vector3(0, 180, 0) && inputH == 1))
+            if (((transform.eulerAngles == Vector3.zero && inputH == -1) || (transform.eulerAngles == new Vector3(0, 180, 0) && inputH == 1)) 
+                && directionLastJump != inputH)
             {
+                directionLastJump = inputH;
                 rb.velocity = new Vector2(0f, 0f);
                 rb.AddForce(new Vector2(wallJumpForceX * inputH, wallJumpForceY), ForceMode2D.Impulse);
                 anim.SetTrigger("jump");
@@ -121,7 +121,15 @@ public class Player : MonoBehaviour
 
     private void Fall()
     {
-        anim.SetBool("falling", !AmIOnTheGround());
+        if (!AmIOnTheGround())
+        {
+            anim.SetBool("falling", true);
+        }
+        else
+        {
+            directionLastJump = 0;
+            anim.SetBool("falling", false);
+        }
     }
 
     private bool AmIOnTheGround()
@@ -134,11 +142,14 @@ public class Player : MonoBehaviour
         return Physics2D.OverlapBox(wallController.position, wallDetectionDimensions, 0f, whatIsJumpable);
     }
 
-    private void ThrowAttack()
+    private IEnumerator ThrowAttack()
     {
         if (Input.GetMouseButtonDown(0))
         {
             anim.SetTrigger("attack");
+            isAttacking = true;
+            yield return new WaitForSeconds(0.5f);
+            isAttacking = false;
         }
     }
 
@@ -150,8 +161,8 @@ public class Player : MonoBehaviour
         {
             if (!collider.gameObject.CompareTag("PlayerHitBox"))
             {
-                LifesSystem lifesSystem = collider.gameObject.GetComponent<LifesSystem>();
-                lifesSystem.ReceiveDamage(attackDamage);
+                Enemy enemy = collider.gameObject.GetComponent<Enemy>();
+                StartCoroutine(enemy.ReceiveDamage(attackDamage));
             }
         }
     }
