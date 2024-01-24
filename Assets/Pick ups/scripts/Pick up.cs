@@ -5,12 +5,12 @@ using UnityEngine;
 public class Pickup : MonoBehaviour
 {
     // Update is called once per frame
-    void Update()
+    /*void Update()
     {
         bool reached = false;
 
         // Update our progress to our destination
-        progress += speed * Time.deltaTime;
+        float progress += speed * Time.deltaTime;
 
         // Check for the case when we overshoot or reach our destination
         if (progress >= 1.0f)
@@ -31,12 +31,12 @@ public class Pickup : MonoBehaviour
         }
 
         RotateGameObject(destination, RotationSpeed, rotOffset);
-    }
+    }*/
 
     void PickNewRandomDestination()
     {
         // We add basestartpoint to the mix so that is doesn't go around a circle in the middle of the scene.
-        destination = Random.insideUnitCircle * radius + basestartpoint;
+        //destination = Random.insideUnitCircle * radius + basestartpoint;
     }
 
     private void RotateGameObject(Vector2 destination, float RotationSpeed, float offset)
@@ -48,5 +48,6 @@ public class Pickup : MonoBehaviour
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         //set the angle into a quaternion + sprite offset depending on initial sprite facing direction
         Quaternion rotation = Quaternion.Euler(new Vector3(0, 0, angle + offset));
-        
+
     }
+}

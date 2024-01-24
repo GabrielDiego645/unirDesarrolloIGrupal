@@ -1,59 +1,48 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 
 public class Menus : MonoBehaviour
 {
-    /*void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            SceneManager.LoadScene(0);
-        }
-    }*/
-
+    [Header("Menus")]
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject options;
-    [SerializeField] private GameObject credits;
     [SerializeField] private GameObject controls;
+
+    [Header("Audio")]
+    [SerializeField] private AudioMixer audioMixer;
 
     public void ChangeGameScene(int scene)
     {
         SceneManager.LoadScene(scene);
     }
 
-    public void EnterOptions(int scene)
+    public void EnterOptions()
     {
         mainMenu.SetActive(false);
         options.SetActive(true);
     }
 
-    public void ExitOptions(int scene)
+    public void MusicControler(float sliderMusica)
+    {
+        audioMixer.SetFloat("MusicVolume", Mathf.Log10(sliderMusica) * 20);
+    }
+
+    public void ExitOptions()
     {
         options.SetActive(false);
         mainMenu.SetActive(true);
     }
 
-    public void EnterCredits(int scene)
-    {
-        mainMenu.SetActive(false);
-        credits.SetActive(true);
-    }
-
-    public void ExitCredits(int scene)
-    {
-        credits.SetActive(false);
-        mainMenu.SetActive(true);
-    }
-
-    public void EnterControls(int scene)
+    public void EnterControls()
     {
         mainMenu.SetActive(false);
         controls.SetActive(true);
     }
 
-    public void ExitControls(int scene)
+    public void ExitControls()
     {
         controls.SetActive(false);
         mainMenu.SetActive(true);
