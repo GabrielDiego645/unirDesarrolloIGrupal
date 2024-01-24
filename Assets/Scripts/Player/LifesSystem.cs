@@ -31,7 +31,6 @@ public class LifesSystem : MonoBehaviour
 
     public IEnumerator ReceiveDamage(float damageRecibed)
     {
-        Debug.Log("Actor damaged");
         health -= damageRecibed;
         healthBar.value = health;
         rb.velocity = new Vector2(0f, 0f);
@@ -65,9 +64,6 @@ public class LifesSystem : MonoBehaviour
 
     private void Restart()
     {
-        //transform.eulerAngles = playerInitialTransform.eulerAngles;
-        //transform.position = playerInitialTransform.position;
-        //transform.position = new Vector3(0f, 5f, 0f);
         transform.SetPositionAndRotation(playerInitialPosition, Quaternion.identity);
 
         healthBar.maxValue = maxHealth;

@@ -35,8 +35,8 @@ public class GlobalParameters : MonoBehaviour
 
     private void SaveData()
     {
-        PlayerPrefs.SetFloat(coinsPrefsName, coins);
-        PlayerPrefs.SetFloat(enemiesPrefsName, enemies);
+        PlayerPrefs.SetInt(coinsPrefsName, coins);
+        PlayerPrefs.SetInt(enemiesPrefsName, enemies);
     }
 
     private void OnDestroy()

@@ -12,7 +12,11 @@ public class Menus : MonoBehaviour
     [SerializeField] private GameObject controls;
 
     [Header("Audio")]
-    [SerializeField] private AudioMixer audioMixer;
+    [SerializeField] private AudioMixer musicAudioMixer;
+    [SerializeField] private AudioMixer soundEffectsAudioMixer;
+
+    private string timerPrefsName = "Timer";
+    private string levelPrefsName = "Level";
 
     public void ChangeGameScene(int scene)
     {
@@ -27,7 +31,12 @@ public class Menus : MonoBehaviour
 
     public void MusicControler(float sliderMusica)
     {
-        audioMixer.SetFloat("MusicVolume", Mathf.Log10(sliderMusica) * 20);
+        musicAudioMixer.SetFloat("MusicVolume", Mathf.Log10(sliderMusica) * 20);
+    }
+
+    public void SoundEffectsControler(float sliderSoundEffects)
+    {
+        soundEffectsAudioMixer.SetFloat("SoundEffectsVolume", Mathf.Log10(sliderSoundEffects) * 20);
     }
 
     public void ExitOptions()
@@ -51,5 +60,16 @@ public class Menus : MonoBehaviour
     public void Exit()
     {
         Application.Quit();
+    }
+
+    private void SaveData()
+    {
+        PlayerPrefs.SetFloat(timerPrefsName, 0);
+        PlayerPrefs.SetFloat(levelPrefsName, 3);
+    }
+
+    private void OnDestroy()
+    {
+        SaveData();
     }
 }

@@ -12,6 +12,7 @@ public class Goblin : Enemy
         healthBar.maxValue = health;
         healthBar.value = health;
         anim = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         gameManagerScript = gameManager.GetComponent<GlobalParameters>();
         StartCoroutine(Patrol());
     }

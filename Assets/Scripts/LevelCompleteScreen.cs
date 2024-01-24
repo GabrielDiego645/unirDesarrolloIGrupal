@@ -69,7 +69,7 @@ public class LevelCompleteScreen : MonoBehaviour
 
     private void SaveData()
     {
-        PlayerPrefs.SetFloat(levelPrefsName, level);
+        PlayerPrefs.SetInt(levelPrefsName, level);
     }
 
     private void LoadData()
