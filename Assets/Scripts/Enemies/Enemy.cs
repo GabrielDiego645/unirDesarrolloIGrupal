@@ -26,6 +26,7 @@ public class Enemy : MonoBehaviour
     protected int currentIndex = 0;
     protected Animator anim;
     protected GameObject player;
+    protected AudioSource audioSource;
     protected bool playerDetected = false;
     protected bool hasRecibedDamage = false;
 
@@ -89,7 +90,6 @@ public class Enemy : MonoBehaviour
     public IEnumerator ReceiveDamage(float damageRecibed)
     {
         hasRecibedDamage = true;
-        Debug.Log("Actor damaged");
         health -= damageRecibed;
         healthBar.value = health;
         if (health > 0)
@@ -98,7 +98,9 @@ public class Enemy : MonoBehaviour
         }
         else
         {
+            gameManagerScript.AddEnemyDefeated();
             anim.SetTrigger("death");
+            audioSource.Play();
             yield return new WaitForSeconds(0.5f);
             Destroy(this.gameObject);
         }
@@ -124,10 +126,5 @@ public class Enemy : MonoBehaviour
         {
             playerDetected = false;
         }
-    }
-
-    private void OnDestroy()
-    {
-        gameManagerScript.AddEnemyDefeated();
     }
 }

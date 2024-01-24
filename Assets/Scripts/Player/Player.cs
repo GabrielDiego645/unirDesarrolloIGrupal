@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
     private LifesSystem lifesSystem;
+    private AudioSource audioSource;
 
     private float inputH;
     private float directionLastJump = 0;
@@ -43,6 +44,7 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         lifesSystem = GetComponent<LifesSystem>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -176,9 +178,17 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Coin"))
+        {
+            audioSource.Play();
+        }
+    }
+
     private void Heigthcontrol()
     {
-        if (transform.position.y < -10)
+        if (transform.position.y < -15)
         {
             StartCoroutine(lifesSystem.ReceiveDamage(1000000));
             hasFallOutTheWorld = true;
